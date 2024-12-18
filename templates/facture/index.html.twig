@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Factures{% endblock %}
+
+{% block body %}
+    <h1>Liste des Factures</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Client</th>
+                <th>Date d'envoi</th>
+                <th>Statut</th>
+                <th>Montant</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for facture in factures %}
+            <tr>
+                <td>{{ facture.id }}</td>
+                <!-- Affiche le nom du client associé -->
+                <td>{{ facture.client.nom }}</td>
+                <td>{{ facture.dateEnvoi ? facture.dateEnvoi|date('d/m/Y') : '' }}</td>
+                <td>{{ facture.statut }}</td>
+                <td>{{ facture.montant }} €</td>
+                <td>
+                    <a href="{{ path('app_facture_show', {'id': facture.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                    <a href="{{ path('app_facture_edit', {'id': facture.id}) }}" class="btn btn-secondary btn-sm">Modifier</a>
+                    <form method="post" action="{{ path('app_facture_delete', {'id': facture.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette facture ?');" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ facture.id) }}">
+                        <button class="btn btn-danger btn-sm" type="submit">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">Aucune facture trouvée.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_facture_new') }}" class="btn btn-success">Créer une nouvelle facture</a>
+{% endblock %}

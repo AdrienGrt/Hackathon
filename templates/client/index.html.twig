@@ -1,0 +1,44 @@
+<tr><b>Liste des clients de merde !<b></tr>
+<form method="get" action="{{ path('app_client_index') }}">
+    <input type="text" name="search" placeholder="Rechercher un client" value="{{ app.request.query.get('search') }}">
+    <button type="submit">Rechercher un nom</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Entreprise</th>
+            <th>Montant total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in clients %}
+            <tr>
+                <td>{{ client.nom }}</td>
+                <td>{{ client.email }}</td>
+                <td>{{ client.entreprise }}</td>
+                <td>{{ client.montantTotal }} €</td>
+                <td>
+                    {# Bouton pour éditer le client #}
+                    <a href="{{ path('app_client_edit', {'id': client.id}) }}">Modifier</a>
+
+                    {# Bouton pour afficher le client #}
+                    <a href="{{ path('app_client_show', {'id': client.id}) }}">Voir</a>
+
+                    {# Formulaire pour supprimer un client #}
+                    <form method="post" action="{{ path('app_client_delete', {'id': client.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ client.id) }}">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">Aucun client trouvé.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
