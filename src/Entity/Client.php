@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\ClientRepository;
@@ -39,6 +38,7 @@ class Client
         $this->factures = new ArrayCollection();
     }
 
+    // Getter et Setter
     public function getId(): ?int
     {
         return $this->id;
@@ -52,7 +52,6 @@ class Client
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -64,7 +63,6 @@ class Client
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -76,7 +74,6 @@ class Client
     public function setEntreprise(string $entreprise): static
     {
         $this->entreprise = $entreprise;
-
         return $this;
     }
 
@@ -88,7 +85,6 @@ class Client
     public function setMontantTotal(string $montantTotal): static
     {
         $this->montantTotal = $montantTotal;
-
         return $this;
     }
 
@@ -106,19 +102,28 @@ class Client
             $this->factures->add($facture);
             $facture->setClient($this);
         }
-
         return $this;
     }
 
     public function removeFacture(Facture $facture): static
     {
         if ($this->factures->removeElement($facture)) {
-            // set the owning side to null (unless already changed)
             if ($facture->getClient() === $this) {
                 $facture->setClient(null);
             }
         }
-
         return $this;
+    }
+
+    /**
+     * Cette méthode recalculera le montant total en fonction des factures associées.
+     */
+    public function refreshMontantTotal(): void
+    {
+        $total = 0;
+        foreach ($this->factures as $facture) {
+            $total += (float) $facture->getMontant();
+        }
+        $this->montantTotal = (string) $total;
     }
 }

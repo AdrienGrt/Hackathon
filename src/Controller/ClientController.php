@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\Client;
@@ -9,7 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/client')]
 final class ClientController extends AbstractController
@@ -26,6 +25,11 @@ final class ClientController extends AbstractController
                 ->getResult();
         } else {
             $clients = $clientRepository->findAll();
+        }
+
+        // Rafraîchir le montant total pour chaque client
+        foreach ($clients as $client) {
+            $client->refreshMontantTotal();
         }
 
         return $this->render('client/index.html.twig', [
@@ -82,7 +86,7 @@ final class ClientController extends AbstractController
     #[Route('/{id}', name: 'app_client_delete', methods: ['POST'])]
     public function delete(Request $request, Client $client, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->get('_token'))) {
             $entityManager->remove($client);
             $entityManager->flush();
         }
