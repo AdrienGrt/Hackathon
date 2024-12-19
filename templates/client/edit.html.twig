@@ -1,13 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Client{% endblock %}
+{% block title %}Modifier le client{% endblock %}
 
 {% block body %}
-    <h1>Edit Client</h1>
+    <div class="container py-5">
+        <h1 class="text-center text-primary mb-4 ">Modifier le client</h1>
 
-    {{ include('client/_form.html.twig', {'button_label': 'Update'}) }}
+        <!-- Formulaire de modification -->
+        <div class="card shadow-sm p-4">
+            {{ include('client/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+        </div>
 
-    <a href="{{ path('app_client_index') }}">back to list</a>
+        <!-- Bouton retour -->
+        <div class="text-center mt-4">
+            <a href="{{ path('app_client_index') }}" class="btn btn-outline-secondary rounded-3 px-4">
+                <i class="bi bi-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
 
-    {{ include('client/_delete_form.html.twig') }}
+        <!-- Bouton de suppression -->
+        <div class="text-center mt-3">
+            {{ include('client/_delete_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}

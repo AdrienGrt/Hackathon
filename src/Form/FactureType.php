@@ -22,7 +22,8 @@ class FactureType extends AbstractType
             ->add('montant')
             ->add('client', EntityType::class, [
                 'class' => Client::class,
-                'choice_label' => 'id',
+                // Afficher le nom du client dans le formulaire, et non son ID
+                'choice_label' => 'nom', // Assurez-vous que la propriété 'nom' existe dans l'entité Client
             ])
         ;
     }

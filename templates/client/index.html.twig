@@ -1,52 +1,72 @@
-{# templates/client/index.html.twig #}
-
 {% extends 'base.html.twig' %}
 
 {% block title %}Liste des clients{% endblock %}
 
 {% block body %}
-    <h1><b>Liste des clients de merde !</b></h1>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4"><b>Liste des clients</b></h1>
 
-    <form method="get" action="{{ path('app_client_index') }}">
-        <input type="text" name="search" placeholder="Rechercher un client" value="{{ app.request.query.get('search') }}">
-        <button type="submit">Rechercher un nom</button>
-    </form>
+        <!-- Formulaire de recherche -->
+        <div class="d-flex justify-content-center mb-4">
+            <form method="get" action="{{ path('app_client_index') }}" class="d-flex w-75">
+                <input type="text" name="search" placeholder="Rechercher un client" value="{{ app.request.query.get('search') }}" class="form-control rounded-pill" required>
+                <button type="submit" class="btn btn-primary ms-2 rounded-pill">Rechercher</button>
+            </form>
+        </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Entreprise</th>
-                <th>Factures</th>
-                <th>Montant total</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for client in clients %}
-                <tr>
-                    <td>{{ client.id }}</td>
-                    <td>{{ client.nom }}</td>
-                    <td>{{ client.email }}</td>
-                    <td>{{ client.entreprise }}</td>
-                    <td>{{ client.factures|length }}</td>  <!-- Nombre de factures -->
-                    <td>{{ client.montantTotal }} €</td>  <!-- Montant total -->
-                    <td>
-                        <a href="{{ path('app_client_edit', {'id': client.id}) }}">Modifier</a>
-                        <a href="{{ path('app_client_show', {'id': client.id}) }}">Voir</a>
-                        <form method="post" action="{{ path('app_client_delete', {'id': client.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?');">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ client.id) }}">
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
-                        </form>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="7">Aucun client trouvé.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <!-- Tableau des clients -->
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Entreprise</th>
+                        <th>Factures</th>
+                        <th>Montant total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                        <tr>
+                            <td>{{ client.id }}</td>
+                            <td>{{ client.nom }}</td>
+                            <td>{{ client.email }}</td>
+                            <td>{{ client.entreprise }}</td>
+                            <td>{{ client.factures|length }}</td>  <!-- Nombre de factures -->
+                            <td>{{ client.montantTotal }} €</td>  <!-- Montant total -->
+                            <td class="d-flex justify-content-center">
+                                <a href="{{ path('app_client_edit', {'id': client.id}) }}" class="btn btn-warning btn-sm mx-1">Modifier</a>
+                                <a href="{{ path('app_client_show', {'id': client.id}) }}" class="btn btn-info btn-sm mx-1">Voir</a>
+                                <form method="post" action="{{ path('app_client_delete', {'id': client.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce client ?');" class="d-inline mx-1">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ client.id) }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">Aucun client trouvé.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bouton pour créer un nouveau client -->
+        <div class="d-flex justify-content-center mt-4">
+            <a href="{{ path('app_client_new') }}" class="btn btn-success btn-lg rounded-pill">
+                Créer un nouveau client
+            </a>
+        </div>
+
+        <!-- Bouton pour voir les factures -->
+        <div class="d-flex justify-content-center mt-5">
+            <a href="{{ path('app_facture_index') }}" class="btn btn-dark btn-lg rounded-pill">
+                Voir les Factures
+            </a>
+        </div>
+    </div>
 {% endblock %}

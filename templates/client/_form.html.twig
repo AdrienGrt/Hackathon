@@ -1,4 +1,27 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
-{{ form_end(form) }}
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        {{ form_start(form, {'attr': {'class': 'form'}}) }}
+
+        <!-- Formulaire -->
+        <div class="row g-3">
+            {% for field in form %}
+                <div class="col-md-6">
+                    <div class="form-group">
+                        {{ form_label(field, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(field, {'attr': {'class': 'text-danger'}}) }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Bouton -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">
+                {{ button_label|default('Enregistrer') }}
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>

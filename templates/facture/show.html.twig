@@ -1,38 +1,56 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Facture{% endblock %}
+{% block title %}Détails de la Facture{% endblock %}
 
 {% block body %}
-    <h1>Facture</h1>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h1 class="text-center mb-4"><b>Détails de la Facture</b></h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ facture.id }}</td>
-            </tr>
-            <tr>
-                <th>Numero</th>
-                <td>{{ facture.numero }}</td>
-            </tr>
-            <tr>
-                <th>DateEnvoi</th>
-                <td>{{ facture.dateEnvoi ? facture.dateEnvoi|date('Y-m-d') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Statut</th>
-                <td>{{ facture.statut }}</td>
-            </tr>
-            <tr>
-                <th>Montant</th>
-                <td>{{ facture.montant }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <!-- Tableau des détails de la facture -->
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th class="bg-light">ID</th>
+                        <td>{{ facture.id }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Numéro</th>
+                        <td>{{ facture.numero }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Date d'envoi</th>
+                        <td>{{ facture.dateEnvoi ? facture.dateEnvoi|date('d/m/Y') : 'Non envoyée' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Statut</th>
+                        <td>
+                            <span class="badge 
+                                {{ facture.statut == 'payée' ? 'bg-success' : 
+                                   (facture.statut == 'en attente' ? 'bg-warning' : 'bg-danger') }}">
+                                {{ facture.statut|capitalize }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">Montant</th>
+                        <td>{{ facture.montant }} €</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-    <a href="{{ path('app_facture_index') }}">back to list</a>
-
-    <a href="{{ path('app_facture_edit', {'id': facture.id}) }}">edit</a>
-
-    {{ include('facture/_delete_form.html.twig') }}
+        <!-- Boutons d'actions -->
+        <div class="d-flex justify-content-center mt-4">
+            <a href="{{ path('app_facture_index') }}" class="btn btn-dark rounded-pill mx-2">
+                Retour à la liste
+            </a>
+            <a href="{{ path('app_facture_edit', {'id': facture.id}) }}" class="btn btn-primary rounded-pill mx-2">
+                Modifier
+            </a>
+            {{ include('facture/_delete_form.html.twig') }}
+        </div>
+    </div>
+</div>
 {% endblock %}
