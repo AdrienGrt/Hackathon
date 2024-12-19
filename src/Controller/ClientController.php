@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\Client;
@@ -20,7 +21,7 @@ final class ClientController extends AbstractController
         if ($search) {
             $clients = $clientRepository->createQueryBuilder('c')
                 ->where('c.nom LIKE :search')
-                ->setParameter('search', '%'.$search.'%')
+                ->setParameter('search', '%' . $search . '%')
                 ->getQuery()
                 ->getResult();
         } else {
@@ -60,8 +61,12 @@ final class ClientController extends AbstractController
     #[Route('/{id}', name: 'app_client_show', methods: ['GET'])]
     public function show(Client $client): Response
     {
+        // Les factures sont accessibles grâce à la relation entre Client et Facture
+        $factures = $client->getFactures();
+
         return $this->render('client/show.html.twig', [
             'client' => $client,
+            'factures' => $factures, // Transmettre les factures à la vue
         ]);
     }
 
@@ -86,7 +91,7 @@ final class ClientController extends AbstractController
     #[Route('/{id}', name: 'app_client_delete', methods: ['POST'])]
     public function delete(Request $request, Client $client, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $client->getId(), $request->get('_token'))) {
             $entityManager->remove($client);
             $entityManager->flush();
         }

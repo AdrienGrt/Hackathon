@@ -1,50 +1,60 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Client{% endblock %}
+{% block title %}Détails du client{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="card shadow-lg p-4">
-        <h1 class="text-center mb-4"><b>Détails du client</b></h1>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Détails du client</h1>
 
-        <!-- Tableau des informations du client -->
-        <div class="table-responsive">
+        <!-- Informations du client -->
+        <div class="mb-4">
+            <h2>{{ client.nom }}</h2>
+            <p><b>Email :</b> <span class="badge bg-info text-dark">{{ client.email }}</span></p> <!-- Email stylisé -->
+            <p><b>Entreprise :</b> {{ client.entreprise }}</p>
+            <p><b>Montant total :</b> <span class="fw-bold text-primary">{{ client.montantTotal }} €</span></p> <!-- Montant stylisé -->
+        </div>
+
+        <!-- Liste des factures associées -->
+        <h3 class="mb-3">Factures associées</h3>
+        {% if factures|length > 0 %}
             <table class="table table-hover table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Date d'envoi</th>
+                        <th>Statut</th>
+                        <th>Montant</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr>
-                        <th class="bg-light">ID</th>
-                        <td>{{ client.id }}</td>
-                    </tr>
-                    <tr>
-                        <th class="bg-light">Nom</th>
-                        <td>{{ client.nom }}</td>
-                    </tr>
-                    <tr>
-                        <th class="bg-light">Email</th>
-                        <td>{{ client.email }}</td>
-                    </tr>
-                    <tr>
-                        <th class="bg-light">Entreprise</th>
-                        <td>{{ client.entreprise }}</td>
-                    </tr>
-                    <tr>
-                        <th class="bg-light">Montant total</th>
-                        <td>{{ client.montantTotal }} €</td>
-                    </tr>
+                    {% for facture in factures %}
+                        <tr>
+                            <td>{{ facture.id }}</td>
+                            <td>{{ facture.dateEnvoi ? facture.dateEnvoi|date('d/m/Y') : 'Non envoyée' }}</td>
+                            <td>
+                                <span class="badge {% if facture.statut == 'Payée' %}bg-success{% elseif facture.statut == 'En attente' %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ facture.statut }}
+                                </span> <!-- Statut stylisé -->
+                            </td>
+                            <td>
+                                <span class="fw-bold text-primary">{{ facture.montant }} €</span> <!-- Montant stylisé -->
+                            </td>
+                            <td>
+                                <a href="{{ path('app_facture_show', {'id': facture.id}) }}" class="btn btn-info btn-sm">Voir</a>
+                                <a href="{{ path('app_facture_edit', {'id': facture.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-        </div>
+        {% else %}
+            <p>Aucune facture associée à ce client.</p>
+        {% endif %}
 
-        <!-- Boutons d'actions -->
-        <div class="d-flex justify-content-center mt-4">
-            <a href="{{ path('app_client_index') }}" class="btn btn-dark rounded-pill mx-2 px-4 py-2">
-                Retour à la liste
-            </a>
-            <a href="{{ path('app_client_edit', {'id': client.id}) }}" class="btn btn-primary rounded-pill mx-2 px-4 py-2">
-                Modifier
-            </a>
-            {{ include('client/_delete_form.html.twig') }}
+        <!-- Retour à la liste des clients -->
+        <div class="mt-4">
+            <a href="{{ path('app_client_index') }}" class="btn btn-secondary">Retour à la liste des clients</a>
         </div>
     </div>
-</div>
 {% endblock %}
