@@ -10,32 +10,38 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/facture')]
 final class FactureController extends AbstractController
 {
     #[Route('/', name: 'app_facture_index', methods: ['GET'])]
-    public function index(Request $request, FactureRepository $factureRepository): Response
+    public function index(Request $request, FactureRepository $factureRepository, PaginatorInterface $paginator): Response
     {
-        
         $search = $request->query->get('search');
+        $itemsPerPage = $request->query->getInt('items_per_page', 15); // Valeur par défaut : 15
         
-        
+        $queryBuilder = $factureRepository->createQueryBuilder('f')
+            ->leftJoin('f.client', 'c');
+
         if ($search) {
-            $factures = $factureRepository->createQueryBuilder('f')
-                ->leftJoin('f.client', 'c') // Joindre la table des clients
+            $queryBuilder
                 ->where('c.nom LIKE :search')
-                ->setParameter('search', '%' . $search . '%')
-                ->getQuery()
-                ->getResult();
-        } else {
-         
-            $factures = $factureRepository->findAll();
+                ->setParameter('search', '%' . $search . '%');
         }
 
+        $query = $queryBuilder->getQuery();
+
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            $itemsPerPage
+        );
+
         return $this->render('facture/index.html.twig', [
-            'factures' => $factures,
-            'search' => $search, 
+            'pagination' => $pagination,
+            'items_per_page' => $itemsPerPage,
+            'search' => $search,
         ]);
     }
 

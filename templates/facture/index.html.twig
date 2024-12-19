@@ -6,11 +6,18 @@
     <div class="container mt-5">
         <h1 class="text-center mb-4"><b>Liste des factures</b></h1>
 
-        <!-- Formulaire de recherche -->
+        <!-- Formulaire de recherche et sélection du nombre d'éléments par page -->
         <div class="d-flex justify-content-center mb-4">
             <form method="get" action="{{ path('app_facture_index') }}" class="d-flex w-75">
-                <input type="text" name="search" placeholder="Rechercher une facture" value="{{ app.request.query.get('search') }}" class="form-control rounded-pill" required>
-                <button type="submit" class="btn btn-primary ms-2 rounded-pill">Rechercher</button>
+                <input type="text" name="search" placeholder="Rechercher une facture" value="{{ app.request.query.get('search') }}" class="form-control rounded-pill me-2">
+                <select name="items_per_page" class="form-select rounded-pill me-2" onchange="this.form.submit()">
+                    <option value="5" {% if items_per_page == 5 %}selected{% endif %}>5 par page</option>
+                    <option value="10" {% if items_per_page == 10 %}selected{% endif %}>10 par page</option>
+                    <option value="15" {% if items_per_page == 15 %}selected{% endif %}>15 par page</option>
+                    <option value="20" {% if items_per_page == 20 %}selected{% endif %}>20 par page</option>
+                    <option value="25" {% if items_per_page == 25 %}selected{% endif %}>25 par page</option>
+                </select>
+                <button type="submit" class="btn btn-primary rounded-pill">Rechercher</button>
             </form>
         </div>
 
@@ -28,7 +35,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for facture in factures %}
+                    {% for facture in pagination %}
                         <tr>
                             <td>{{ facture.id }}</td>
                             <td>{{ facture.client.nom }}</td>
@@ -57,6 +64,11 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4">
+            {{ knp_pagination_render(pagination) }}
         </div>
 
         <!-- Bouton pour créer une nouvelle facture -->
