@@ -26,11 +26,36 @@
             <table class="table table-hover table-bordered">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
-                        <th>Client</th>
-                        <th>Date</th>
-                        <th>Montant</th>
-                        <th>Statut</th>
+                        <th>
+                            ID
+                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'id', 'direction': direction == 'asc' and app.request.query.get('sort') == 'id' ? 'desc' : 'asc'})) }}" class="text-white">
+                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'id' %}-{{ direction }}{% endif %}"></i>
+                            </a>
+                        </th>
+                        <th>
+                            Client
+                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'client.nom', 'direction': direction == 'asc' and app.request.query.get('sort') == 'client.nom' ? 'desc' : 'asc'})) }}" class="text-white">
+                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'client.nom' %}-{{ direction }}{% endif %}"></i>
+                            </a>
+                        </th>
+                        <th>
+                            Date
+                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'dateEnvoi', 'direction': direction == 'asc' and app.request.query.get('sort') == 'dateEnvoi' ? 'desc' : 'asc'})) }}" class="text-white">
+                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'dateEnvoi' %}-{{ direction }}{% endif %}"></i>
+                            </a>
+                        </th>
+                        <th>
+                            Montant
+                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'montant', 'direction': direction == 'asc' and app.request.query.get('sort') == 'montant' ? 'desc' : 'asc'})) }}" class="text-white">
+                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'montant' %}-{{ direction }}{% endif %}"></i>
+                            </a>
+                        </th>
+                        <th>
+                            Statut
+                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'statut', 'direction': direction == 'asc' and app.request.query.get('sort') == 'statut' ? 'desc' : 'asc'})) }}" class="text-white">
+                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'statut' %}-{{ direction }}{% endif %}"></i>
+                            </a>
+                        </th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -71,15 +96,11 @@
             {{ knp_pagination_render(pagination) }}
         </div>
 
-        <!-- Bouton pour créer une nouvelle facture -->
+        <!-- Boutons -->
         <div class="d-flex justify-content-center mt-4">
-            <a href="{{ path('app_facture_new') }}" class="btn btn-success btn-lg rounded-pill">
+            <a href="{{ path('app_facture_new') }}" class="btn btn-success btn-lg rounded-pill me-3">
                 Créer une nouvelle facture
             </a>
-        </div>
-
-        <!-- Bouton pour voir les clients -->
-        <div class="d-flex justify-content-center mt-5">
             <a href="{{ path('app_client_index') }}" class="btn btn-dark btn-lg rounded-pill">
                 Voir les Clients
             </a>

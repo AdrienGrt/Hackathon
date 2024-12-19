@@ -16,34 +16,44 @@ use Knp\Component\Pager\PaginatorInterface;
 final class FactureController extends AbstractController
 {
     #[Route('/', name: 'app_facture_index', methods: ['GET'])]
-    public function index(Request $request, FactureRepository $factureRepository, PaginatorInterface $paginator): Response
-    {
-        $search = $request->query->get('search');
-        $itemsPerPage = $request->query->getInt('items_per_page', 15); // Valeur par défaut : 15
-        
-        $queryBuilder = $factureRepository->createQueryBuilder('f')
-            ->leftJoin('f.client', 'c');
+public function index(Request $request, FactureRepository $factureRepository, PaginatorInterface $paginator): Response
+{
+    $search = $request->query->get('search');
+    $itemsPerPage = $request->query->getInt('items_per_page', 15);
+    $sort = $request->query->get('sort', 'dateEnvoi');
+    $direction = $request->query->get('direction', 'desc');
 
-        if ($search) {
-            $queryBuilder
-                ->where('c.nom LIKE :search')
-                ->setParameter('search', '%' . $search . '%');
-        }
+    $queryBuilder = $factureRepository->createQueryBuilder('f')
+        ->leftJoin('f.client', 'c');
 
-        $query = $queryBuilder->getQuery();
-
-        $pagination = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            $itemsPerPage
-        );
-
-        return $this->render('facture/index.html.twig', [
-            'pagination' => $pagination,
-            'items_per_page' => $itemsPerPage,
-            'search' => $search,
-        ]);
+    if ($search) {
+        $queryBuilder
+            ->andWhere('c.nom LIKE :search OR f.statut LIKE :search')
+            ->setParameter('search', '%' . $search . '%');
     }
+
+    if ($sort === 'client.nom') {
+        $queryBuilder->orderBy('c.nom', $direction);
+    } else {
+        $queryBuilder->orderBy('f.' . $sort, $direction);
+    }
+
+    $query = $queryBuilder->getQuery();
+
+    $pagination = $paginator->paginate(
+        $query,
+        $request->query->getInt('page', 1),
+        $itemsPerPage
+    );
+
+    return $this->render('facture/index.html.twig', [
+        'pagination' => $pagination,
+        'items_per_page' => $itemsPerPage,
+        'search' => $search,
+        'sort' => $sort,
+        'direction' => $direction,
+    ]);
+}
 
     #[Route('/new', name: 'app_facture_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
