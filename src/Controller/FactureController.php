@@ -3,57 +3,63 @@
 namespace App\Controller;
 
 use App\Entity\Facture;
-use App\Form\FactureType;
 use App\Repository\FactureRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/facture')]
-final class FactureController extends AbstractController
+class FactureController extends AbstractController
 {
     #[Route('/', name: 'app_facture_index', methods: ['GET'])]
-public function index(Request $request, FactureRepository $factureRepository, PaginatorInterface $paginator): Response
-{
-    $search = $request->query->get('search');
-    $itemsPerPage = $request->query->getInt('items_per_page', 15);
-    $sort = $request->query->get('sort', 'dateEnvoi');
-    $direction = $request->query->get('direction', 'desc');
+    public function index(
+        Request $request,
+        FactureRepository $factureRepository,
+        PaginatorInterface $paginator
+    ): Response {
+        $search = $request->query->get('search');
+        $itemsPerPage = $request->query->getInt('items_per_page', 10);
+        $sort = $request->query->get('sort', 'id');
+        $direction = $request->query->get('direction', 'asc');
 
-    $queryBuilder = $factureRepository->createQueryBuilder('f')
-        ->leftJoin('f.client', 'c');
+        // Construction de la requête avec les filtres et tri
+        $queryBuilder = $factureRepository->createQueryBuilder('f')
+            ->leftJoin('f.client', 'c')
+            ->addSelect('c');
 
-    if ($search) {
-        $queryBuilder
-            ->andWhere('c.nom LIKE :search OR f.statut LIKE :search')
-            ->setParameter('search', '%' . $search . '%');
+        if ($search) {
+            $queryBuilder
+                ->andWhere('c.nom LIKE :search OR f.statut LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        // Application du tri
+        if ($sort === 'client.nom') {
+            $queryBuilder->orderBy('c.nom', $direction);
+        } else {
+            $queryBuilder->orderBy('f.' . $sort, $direction);
+        }
+
+        $query = $queryBuilder->getQuery();
+
+        // Pagination
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            $itemsPerPage
+        );
+
+        return $this->render('facture/index.html.twig', [
+            'pagination' => $pagination,
+            'items_per_page' => $itemsPerPage,
+            'search' => $search,
+            'sort' => $sort,
+            'direction' => $direction,
+        ]);
     }
-
-    if ($sort === 'client.nom') {
-        $queryBuilder->orderBy('c.nom', $direction);
-    } else {
-        $queryBuilder->orderBy('f.' . $sort, $direction);
-    }
-
-    $query = $queryBuilder->getQuery();
-
-    $pagination = $paginator->paginate(
-        $query,
-        $request->query->getInt('page', 1),
-        $itemsPerPage
-    );
-
-    return $this->render('facture/index.html.twig', [
-        'pagination' => $pagination,
-        'items_per_page' => $itemsPerPage,
-        'search' => $search,
-        'sort' => $sort,
-        'direction' => $direction,
-    ]);
-}
 
     #[Route('/new', name: 'app_facture_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -86,7 +92,7 @@ public function index(Request $request, FactureRepository $factureRepository, Pa
     #[Route('/{id}/edit', name: 'app_facture_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Facture $facture, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(FactureType::class, $facture);
+        $form = $this->createForm(FactureType ::class, $facture);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

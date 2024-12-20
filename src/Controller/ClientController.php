@@ -19,7 +19,7 @@ final class ClientController extends AbstractController
     public function index(Request $request, ClientRepository $clientRepository, PaginatorInterface $paginator): Response
     {
         $search = $request->query->get('search');
-        $itemsPerPage = $request->query->getInt('items_per_page', 15); // Valeur par défaut : 15
+        $itemsPerPage = $request->query->getInt('items_per_page', 10);
         
         $queryBuilder = $clientRepository->createQueryBuilder('c');
 

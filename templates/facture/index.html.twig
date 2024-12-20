@@ -1,109 +1,129 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Liste des factures{% endblock %}
-
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="text-center mb-4"><b>Liste des factures</b></h1>
-
-        <!-- Formulaire de recherche et sélection du nombre d'éléments par page -->
-        <div class="d-flex justify-content-center mb-4">
-            <form method="get" action="{{ path('app_facture_index') }}" class="d-flex w-75">
-                <input type="text" name="search" placeholder="Rechercher une facture" value="{{ app.request.query.get('search') }}" class="form-control rounded-pill me-2">
-                <select name="items_per_page" class="form-select rounded-pill me-2" onchange="this.form.submit()">
-                    <option value="5" {% if items_per_page == 5 %}selected{% endif %}>5 par page</option>
-                    <option value="10" {% if items_per_page == 10 %}selected{% endif %}>10 par page</option>
-                    <option value="15" {% if items_per_page == 15 %}selected{% endif %}>15 par page</option>
-                    <option value="20" {% if items_per_page == 20 %}selected{% endif %}>20 par page</option>
-                    <option value="25" {% if items_per_page == 25 %}selected{% endif %}>25 par page</option>
-                </select>
-                <button type="submit" class="btn btn-primary rounded-pill">Rechercher</button>
-            </form>
-        </div>
-
-        <!-- Tableau des factures -->
-        <div class="table-responsive">
-            <table class="table table-hover table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>
-                            ID
-                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'id', 'direction': direction == 'asc' and app.request.query.get('sort') == 'id' ? 'desc' : 'asc'})) }}" class="text-white">
-                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'id' %}-{{ direction }}{% endif %}"></i>
-                            </a>
-                        </th>
-                        <th>
-                            Client
-                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'client.nom', 'direction': direction == 'asc' and app.request.query.get('sort') == 'client.nom' ? 'desc' : 'asc'})) }}" class="text-white">
-                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'client.nom' %}-{{ direction }}{% endif %}"></i>
-                            </a>
-                        </th>
-                        <th>
-                            Date
-                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'dateEnvoi', 'direction': direction == 'asc' and app.request.query.get('sort') == 'dateEnvoi' ? 'desc' : 'asc'})) }}" class="text-white">
-                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'dateEnvoi' %}-{{ direction }}{% endif %}"></i>
-                            </a>
-                        </th>
-                        <th>
-                            Montant
-                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'montant', 'direction': direction == 'asc' and app.request.query.get('sort') == 'montant' ? 'desc' : 'asc'})) }}" class="text-white">
-                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'montant' %}-{{ direction }}{% endif %}"></i>
-                            </a>
-                        </th>
-                        <th>
-                            Statut
-                            <a href="{{ path('app_facture_index', app.request.query.all|merge({'sort': 'statut', 'direction': direction == 'asc' and app.request.query.get('sort') == 'statut' ? 'desc' : 'asc'})) }}" class="text-white">
-                                <i class="fas fa-sort{% if app.request.query.get('sort') == 'statut' %}-{{ direction }}{% endif %}"></i>
-                            </a>
-                        </th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for facture in pagination %}
-                        <tr>
-                            <td>{{ facture.id }}</td>
-                            <td>{{ facture.client.nom }}</td>
-                            <td>{{ facture.dateEnvoi ? facture.dateEnvoi|date('d/m/Y') : '' }}</td>
-                            <td>{{ facture.montant }} €</td>
-                            <td>
-                                <span class="badge 
-                                    {{ facture.statut == 'envoyée' ? 'bg-success' : 
-                                       (facture.statut == 'en cours' ? 'bg-warning' : 'bg-danger') }}">
-                                    {{ facture.statut|capitalize }}
-                                </span>
-                            </td>
-                            <td class="d-flex justify-content-center">
-                                <a href="{{ path('app_facture_show', {'id': facture.id}) }}" class="btn btn-info btn-sm mx-1">Voir</a>
-                                <a href="{{ path('app_facture_edit', {'id': facture.id}) }}" class="btn btn-warning btn-sm mx-1">Modifier</a>
-                                <form method="post" action="{{ path('app_facture_delete', {'id': facture.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette facture ?');" class="d-inline mx-1">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ facture.id) }}">
-                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center">Aucune facture trouvée.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="d-flex justify-content-center mt-4">
-            {{ knp_pagination_render(pagination) }}
-        </div>
-
-        <!-- Boutons -->
-        <div class="d-flex justify-content-center mt-4">
-            <a href="{{ path('app_facture_new') }}" class="btn btn-success btn-lg rounded-pill me-3">
-                Créer une nouvelle facture
-            </a>
-            <a href="{{ path('app_client_index') }}" class="btn btn-dark btn-lg rounded-pill">
-                Voir les Clients
-            </a>
-        </div>
+<div class="container mt-5">
+    <h1 class="text-center mb-4"><b>Liste des factures</b></h1>
+    <!-- Formulaire de recherche et sélection du nombre d'éléments par page -->
+    <div class="d-flex justify-content-center mb-4">
+        <form method="get" action="{{ path('app_facture_index') }}" class="d-flex w-75">
+            <input type="text" name="search" placeholder="Rechercher une facture" value="{{ app.request.query.get('search') }}" class="form-control rounded-pill me-2">
+            <select name="items_per_page" class="form-select rounded-pill me-2" onchange="this.form.submit()">
+                <option value="5" {% if items_per_page == 5 %}selected{% endif %}>5 par page</option>
+                <option value="10" {% if items_per_page == 10 %}selected{% endif %}>10 par page</option>
+                <option value="15" {% if items_per_page == 15 %}selected{% endif %}>15 par page</option>
+                <option value="20" {% if items_per_page == 20 %}selected{% endif %}>20 par page</option>
+                <option value="25" {% if items_per_page == 25 %}selected{% endif %}>25 par page</option>
+            </select>
+            <button type="submit" class="btn btn-primary rounded-pill">Rechercher</button>
+        </form>
     </div>
+    <!-- Tableau des factures -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>
+                        ID
+                        <span class="sort-icon" data-column="id" data-direction="asc" style="cursor: pointer;">🔽</span>
+                    </th>
+                    <th>
+                        Client
+                        <span class="sort-icon" data-column="client" data-direction="asc" style="cursor: pointer;">🔽</span>
+                    </th>
+                    <th>
+                        Date
+                        <span class="sort-icon" data-column="date" data-direction="asc" style="cursor: pointer;">🔽</span>
+                    </th>
+                    <th>
+                        Montant
+                        <span class="sort-icon" data-column="montant" data-direction="asc" style="cursor: pointer;">🔽</span>
+                    </th>
+                    <th>
+                        Statut
+                        <span class="sort-icon" data-column="statut" data-direction="asc" style="cursor: pointer;">🔽</span>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                {% for facture in pagination %}
+                <tr class="table-row">
+                    <td class="table-cell" data-id="{{ facture.id }}">{{ facture.id }}</td>
+                    <td class="table-cell" data-client="{{ facture.client.nom }}">{{ facture.client.nom }}</td>
+                    <td class="table-cell" data-date="{{ facture.dateEnvoi ? facture.dateEnvoi|date('Y-m-d') : '' }}">{{ facture.dateEnvoi ? facture.dateEnvoi|date('d/m/Y') : '' }}</td>
+                    <td class="table-cell" data-montant="{{ facture.montant }}">{{ facture.montant }} €</td>
+                    <td class="table-cell" data-statut="{{ facture.statut }}">
+                        <span class="badge {{ facture.statut == 'envoyée' ? 'bg-success' : (facture.statut == 'en cours' ? 'bg-warning' : 'bg-danger') }}">
+                            {{ facture.statut|capitalize }}
+                        </span>
+                    </td>
+                    <td class="d-flex justify-content-center">
+                        <a href="{{ path('app_facture_show', {'id': facture.id}) }}" class="btn btn-info btn-sm mx-1">Voir</a>
+                        <a href="{{ path('app_facture_edit', {'id': facture.id}) }}" class="btn btn-warning btn-sm mx-1">Modifier</a>
+                        <form method="post" action="{{ path('app_facture_delete', {'id': facture.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette facture ?');" class="d-inline mx-1">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ facture.id) }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">Aucune facture trouvée.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(pagination) }}
+    </div>
+    <!-- Boutons -->
+    <div class="d-flex justify-content-center mt-4">
+        <a href="{{ path('app_facture_new') }}" class="btn btn-success btn-lg rounded-pill me-3">
+            Créer une nouvelle facture
+        </a>
+        <a href="{{ path('app_client_index') }}" class="btn btn-dark btn-lg rounded-pill">
+            Voir les Clients
+        </a>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const sortIcons = document.querySelectorAll('.sort-icon');
+    const tableBody = document.getElementById('table-body');
+
+    sortIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            const column = icon.getAttribute('data-column');
+            const isAscending = icon.getAttribute('data-direction') === 'asc';
+            icon.setAttribute('data-direction', isAscending ? 'desc' : 'asc');
+            icon.textContent = isAscending ? '🔼' : '🔽';
+
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                let aValue = a.querySelector(`[data-${column}]`).getAttribute(`data-${column}`);
+                let bValue = b.querySelector(`[data-${column}]`).getAttribute(`data-${column}`);
+
+                if (column === 'id' || column === 'montant') {
+                    aValue = parseFloat(aValue);
+                    bValue = parseFloat(bValue);
+                    return isAscending ? aValue - bValue : bValue - aValue;
+                } else if (column === 'date') {
+                    return isAscending ? 
+                        new Date(aValue) - new Date(bValue) : 
+                        new Date(bValue) - new Date(aValue);
+                } else {
+                    return isAscending ? 
+                        aValue.localeCompare(bValue) : 
+                        bValue.localeCompare(aValue);
+                }
+            });
+
+            rows.forEach(row => tableBody.appendChild(row));
+        });
+    });
+});
+</script>
 {% endblock %}

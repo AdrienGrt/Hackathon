@@ -26,24 +26,42 @@
             <table class="table table-hover table-bordered">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Email</th>
-                        <th>Entreprise</th>
-                        <th>Factures</th>
-                        <th>Montant total</th>
+                        <th>
+                            ID
+                            <span class="sort-icon" data-column="id" data-direction="asc" style="cursor: pointer;">🔽</span>
+                        </th>
+                        <th>
+                            Nom
+                            <span class="sort-icon" data-column="nom" data-direction="asc" style="cursor: pointer;">🔽</span>
+                        </th>
+                        <th>
+                            Email
+                            <span class="sort-icon" data-column="email" data-direction="asc" style="cursor: pointer;">🔽</span>
+                        </th>
+                        <th>
+                            Entreprise
+                            <span class="sort-icon" data-column="entreprise" data-direction="asc" style="cursor: pointer;">🔽</span>
+                        </th>
+                        <th>
+                            Factures
+                            <span class="sort-icon" data-column="factures" data-direction="asc" style="cursor: pointer;">🔽</span>
+                        </th>
+                        <th>
+                            Montant total
+                            <span class="sort-icon" data-column="montantTotal" data-direction="asc" style="cursor: pointer;">🔽</span>
+                        </th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="table-body">
                     {% for client in pagination %}
                         <tr>
-                            <td>{{ client.id }}</td>
-                            <td>{{ client.nom }}</td>
-                            <td>{{ client.email }}</td>
-                            <td>{{ client.entreprise }}</td>
-                            <td>{{ client.factures|length }}</td>
-                            <td>{{ client.montantTotal }} €</td>
+                            <td data-id="{{ client.id }}">{{ client.id }}</td>
+                            <td data-nom="{{ client.nom }}">{{ client.nom }}</td>
+                            <td data-email="{{ client.email }}">{{ client.email }}</td>
+                            <td data-entreprise="{{ client.entreprise }}">{{ client.entreprise }}</td>
+                            <td data-factures="{{ client.factures|length }}">{{ client.factures|length }}</td>
+                            <td data-montantTotal="{{ client.montantTotal }}">{{ client.montantTotal }} €</td>
                             <td class="d-flex justify-content-center">
                                 <a href="{{ path('app_client_edit', {'id': client.id}) }}" class="btn btn-warning btn-sm mx-1">Modifier</a>
                                 <a href="{{ path('app_client_show', {'id': client.id}) }}" class="btn btn-info btn-sm mx-1">Voir</a>
@@ -81,4 +99,39 @@
             </a>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sortIcons = document.querySelectorAll('.sort-icon');
+            const tableBody = document.getElementById('table-body');
+
+            sortIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const column = icon.getAttribute('data-column');
+                    const isAscending = icon.getAttribute('data-direction') === 'asc';
+                    icon.setAttribute('data-direction', isAscending ? 'desc' : 'asc');
+                    icon.textContent = isAscending ? '🔼' : '🔽';
+
+                    const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+                    rows.sort((a, b) => {
+                        let aValue = a.querySelector(`[data-${column}]`).getAttribute(`data-${column}`);
+                        let bValue = b.querySelector(`[data-${column}]`).getAttribute(`data-${column}`);
+
+                        if (['id', 'factures', 'montantTotal'].includes(column)) {
+                            aValue = parseFloat(aValue);
+                            bValue = parseFloat(bValue);
+                            return isAscending ? aValue - bValue : bValue - aValue;
+                        } else {
+                            return isAscending ? 
+                                aValue.localeCompare(bValue) : 
+                                bValue.localeCompare(aValue);
+                        }
+                    });
+
+                    rows.forEach(row => tableBody.appendChild(row));
+                });
+            });
+        });
+    </script>
 {% endblock %}
