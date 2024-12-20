@@ -6,7 +6,7 @@
     <div class="container mt-5">
         <h1 class="text-center mb-4"><b>Liste des clients</b></h1>
 
-        <!-- Formulaire de recherche et sélection du nombre d'éléments par page -->
+       
         <div class="d-flex justify-content-center mb-4">
             <form method="get" action="{{ path('app_client_index') }}" class="d-flex w-75">
                 <input type="text" name="search" placeholder="Rechercher un client" value="{{ app.request.query.get('search') }}" class="form-control rounded-pill me-2">
